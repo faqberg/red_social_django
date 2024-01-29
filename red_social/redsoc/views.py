@@ -615,9 +615,11 @@ def send(request):
 def getMessages(request,usuario):
         # room_details=Room.objects.get(name=room)
         # messages=Message.objects.filter(room=room_details.id)
+        
         messages=Mensajes.objects.filter(usuario2=usuario,usuario1=request.user.username)
         messages2=Mensajes.objects.filter(usuario1=usuario,usuario2=request.user.username)
         messages=messages.union(messages2)
+        
         ultimo_msg=messages.last()
         if ultimo_msg.usuario2 == request.user.username:
             ultimo_msg.leido="si"

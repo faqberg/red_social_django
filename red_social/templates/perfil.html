@@ -94,11 +94,9 @@
                     <input type="submit" value="Eliminar amigo"  class="botones_agregar_mensaje"/>
                     </form>
                 {% endif %}
-                <form action="../mensajes" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" value="{{usuario_perfil}}" name="usuario_perfil">
-                    <input type="submit" value="Enviar mensaje"  class="botones_agregar_mensaje"/>
-                </form>
+                
+                    <button type="button"  class="botones_agregar_mensaje" onclick="window.location.href='../chat/{{usuario_perfil}}'">Enviar Mensaje</button>
+                
                 
                 
             </div>
