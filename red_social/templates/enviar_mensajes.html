@@ -1,0 +1,220 @@
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'style_perfil.css' %}">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <title>Chat</title>
+    
+<body>
+    <style>
+        .message {
+    background-color: #e0e0e0;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.user-message {
+    background-color: #aee7ff;
+}
+
+.message-info {
+    color: #888;
+    font-size: 12px;
+}
+
+.user-name {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+}
+
+.user-text {
+    font-size: 16px;
+    color: #333;
+}
+
+.input-box {
+    display: flex;
+}
+
+#messageInput {
+    flex: 1;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+#sendMessageBtn {
+    padding: 8px;
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+#messages-container {
+    overflow-y: auto;
+    /* otras propiedades de estilo pueden ir aquí */
+}
+    </style>
+    {% if user.is_authenticated %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="user-info" style="margin-right: 30px; display: flex; align-items: center;">
+            <img src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil" style="border-radius: 50%; margin-right: 5px; width: 30px; height: 30px;">
+            <a href="{% url 'perfil' user.username %}">{{user.username}}</a>
+            <div class="logout" style="margin-left: 10px;"><a href='../logout' style="font-size: 80%;">Cerrar Sesión</a></div>
+        </div>
+    </header>
+{% else %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="buttons">
+            <a href="signin"><button>Registrarse</button></a>
+            <a href="login"><button>Iniciar Sesión</button></a>
+        </div>
+    </header>
+{% endif %}
+
+    <main>
+        <div id="sidebar">
+            <div id="search">
+                <!-- Área de búsqueda -->
+                <form method="get" action="../buscar">
+                    <input type="text" name="busqueda" placeholder="Buscar..." style="width: 90%; padding: 5px;margin-bottom:5px"><br>
+                    
+                    <!-- Select con opciones -->
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="usuario">Usuario</option>
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                        <option value="publicaciones">Publicaciones</option>
+                    </select>
+            
+                    <!-- Botón de búsqueda -->
+                    <input type="submit" value="Buscar">
+                </form>
+            </div>
+
+            <!-- Enlaces de la barra lateral -->
+            <a href="../../">Inicio</a>
+            <a href="{% url 'perfil' user.username %}">Perfil</a>
+            <a href="../amigos">Amigos ({{amigos_totales}})</a>
+            <a href="../solicitudes_amistad">Solicitudes de amistad ({{solicitudes_recibidas}})</a>
+            <a href="../mensajes">Chat</a>
+            
+        </div>
+
+        <div id="profile">
+            <div style="display: flex; align-items: center;">
+                <a href="../perfil/{{datos_usuario.usuario}}"><img src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil" class="profile-pic-large" style="width: 40px; height: 40px; vertical-align: middle;"></a>
+                <span style="font-weight: bolder; font-size: 100%;padding-left: 10px;"><a href="../perfil/{{datos_usuario.usuario}}" style="text-decoration: none;color:black">{{datos_usuario.nombre}} {{datos_usuario.apellido}}</a></span>
+            </div>
+            <span style="font-size: 80%;margin-top: -13px;margin-bottom: 10px;"><a href="../perfil/{{datos_usuario.usuario}}" style="text-decoration: none;color:rgb(83, 139, 158);">@{{datos_usuario.usuario}}</a></span>
+            
+            
+            <div id="messages-container" style="max-height: 400px; overflow-y: auto;padding-right:10px;width:30%;">
+                
+                <div id="display" style="display: inline;">
+                    <script>
+                        $(document).ready(function () {
+                            var messagesContainer = $("#messages-container");
+                    
+                            function getMessages() {
+                                $.ajax({
+                                    type: 'GET',
+                                    url: "/getMessages/{{usuario}}/",
+                                    success: function (response) {
+                                        // Limpiar el contenido del contenedor
+                                        messagesContainer.empty();
+                    
+                                        // Agregar mensajes al contenedor (de más antiguo a más reciente)
+                                        for (var i = 0; i < response.messages.length; i++) {
+                                            var fechaCreacion = new Date(response.messages[i].fecha_creacion);
+    
+                                            // Formatear la fecha y hora
+                                            var opcionesFormato = { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' };
+                                            var fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', opcionesFormato);
+                                            if (response.messages[i].usuario1=="{{user.username}}"){
+                                                var temp = '<div class="message user-message" style="background-color:white;border:1px solid grey;width:90%;margin-left:auto; border-radius: 10px 10px 0px 10px;"><div class="user-name"><a href="../perfil/'+response.messages[i].usuario1+'" style="text-decoration:none;color:black">' + response.messages[i].usuario1 + '</a></div><div class="user-text">' + response.messages[i].mensaje + '</div><div class="message-info">Fecha y hora: ' + fechaFormateada + '</div></div>';
+                                            }
+                                            else{
+                                                var temp = '<div class="message user-message" style="border:1px solid grey;width:90%;margin-right:auto; border-radius: 10px 10px 10px 0px;"><div class="user-name"><a href="../perfil/'+response.messages[i].usuario1+'" style="text-decoration:none;color:black">' + response.messages[i].usuario1 + '</a></div><div class="user-text">' + response.messages[i].mensaje + '</div><div class="message-info">Fecha y hora: ' + fechaFormateada + '</div></div>';
+                                            }
+                                            
+                                            messagesContainer.append(temp);
+                                        }
+                    
+                                        // Desplazar automáticamente hacia abajo
+                                        messagesContainer.scrollTop(messagesContainer[0].scrollHeight);
+                                    },
+                                    error: function (response) {
+                                        alert("Ocurrió un error");
+                                    }
+                                });
+                            }
+                    
+                            // Llamar a la función getMessages al cargar la página
+                            getMessages();
+                    
+                            // Llamar a la función getMessages cada segundo
+                            setInterval(getMessages, 1000);
+                        });
+                    </script>
+                    
+    
+                    
+                    
+                    
+    
+                    
+                </div>
+            </div>
+            
+            
+            <div class="input-box" style="width: 30%;">
+                <form id="post-form" style="width:100%">
+                    {% csrf_token %}
+                    <input type="hidden" name="usuario1" id="usuario1" value="{{user.id}}">
+                    <input type="hidden" name="usuario2" id="usuario2" value="{{usuario}}">
+                <input type="text" name="message" id="message" placeholder="Escribe tu mensaje" style="width:80%;padding:6px">
+                <input type="submit" id="sendMessageBtn" value="Enviar">
+            </form>
+            </div>
+           
+        </div>
+    </main>
+    
+
+    <footer>
+        © 2024 Red Social. Todos los derechos reservados.
+    </footer>
+</body>
+<script type="text/javascript">
+    $(document).on('submit','#post-form',function(e){
+        e.preventDefault();
+
+        $.ajax({
+            type:'POST',
+            url:'/send',
+            data:{
+                usuario1:$('#usuario1').val(),
+                usuario2:$('#usuario2').val(),
+                message:$('#message').val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+            },
+            success: function(data){
+                
+
+            }
+        });
+        document.getElementById('message').value=''
+    })
+</script>
+</html>

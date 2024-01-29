@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Social</title>
+    <link rel="stylesheet" href="{% static 'style_index.css' %}">
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="user-info" style="margin-right: 30px; display: flex; align-items: center;">
+            <img src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="" style="border-radius: 50%; margin-right: 5px; width: 30px; height: 30px;">
+            <a href="{% url 'perfil' user.username %}">{{user.username}}</a>
+            <div class="logout" style="margin-left: 10px;"><a href='logout' style="font-size: 80%;">Cerrar Sesión</a></div>
+        </div>
+    </header>
+{% else %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="buttons">
+            <a href="signin"><button>Registrarse</button></a>
+            <a href="login"><button>Iniciar Sesión</button></a>
+        </div>
+    </header>
+{% endif %}
+
+
+
+    
+
+    <main>
+        {% if user.is_authenticated %}
+        <div id="sidebar">
+            <div id="search">
+                <!-- Área de búsqueda -->
+                <form method="get" action="buscar">
+                    <input type="text" name="busqueda" placeholder="Buscar..." style="width: 90%; padding: 5px;margin-bottom:5px"><br>
+                    
+                    <!-- Select con opciones -->
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="usuario">Usuario</option>
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                        <option value="publicaciones">Publicaciones</option>
+                    </select>
+            
+                    <!-- Botón de búsqueda -->
+                    <input type="submit" value="Buscar">
+                </form>
+            </div>
+
+            <!-- Enlaces de la barra lateral -->
+            <a href="/">Inicio</a>
+            <a href="{% url 'perfil' user.username %}">Perfil</a>
+            <a href="amigos">Amigos ({{amigos_totales}})</a>
+            <a href="solicitudes_amistad">Solicitudes de amistad ({{solicitudes_recibidas}})</a>
+            <a href="mensajes">Chat</a>
+            
+        </div>
+
+        <div id="feed">
+            <!-- Aquí irían las publicaciones del usuario -->
+            <div id="create-post" style="width:60%;margin: auto;margin-bottom: 20px;border: 0px;">
+                
+                <form action="createpost" method="post" id="create-post">
+                    {% csrf_token %}
+                <textarea name="texto_publicacion" placeholder="Escribe aquí tu publicación..." style="width: 95%; padding: 10px; margin-bottom: 10px;"></textarea>
+                <input type="submit" value="Publicar" name="submit_publicacion" style="background-color: #4267b2; color: #fff; padding: 10px; border: none; border-radius: 4px; cursor: pointer;margin-bottom:15px">
+                </form>
+            </div>
+            {% for publicacion in publicaciones %}
+            
+            <div class="post" style="width:40%;margin: auto;margin-bottom: 15px;border:1px solid grey;border-radius: 15px;box-shadow: 0 0 3px black;">
+                <img class="profile-pic" src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil Usuario 1">
+                <div class="post-content">
+                    {% if publicacion.usuario == user.username %}
+                    <form method="POST" action="../eliminar_post2">
+                        {% csrf_token %}
+                        <input type="hidden" name="id_post" value="{{publicacion.id}}">
+                        
+                        <input type="submit" value="Eliminar" class="eliminar-btn" style="float: right;">
+                    </form>
+                    {% endif %}
+                    <h3><a href="{% url 'perfil' publicacion.usuario %}" style="text-decoration: none;color:black">{{publicacion.nombre}} {{publicacion.apellido}}</a></h3>
+                    <h3 style="font-size: 80%;"><a href="{% url 'perfil' publicacion.usuario %}"style="text-decoration: none;color: blue;">@{{publicacion.usuario}}</a></h3>
+                    <p>{{publicacion.texto}}</p>
+                    <div class="info">
+                        <span class="likes">{{publicacion.numero_likes}} likes</span>
+                        <span class="comments">{{publicacion.numero_comentarios}} comentarios</span>
+                    </div>
+                    <div class="likes_coments" style="padding-top: 3px;padding-bottom: 8px;">
+                        {% if publicacion.liked == "no" %}
+                        <form id="like-form" method="post" action="dar_like" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" id="id_publicacion" name="id_publicacion" value="{{publicacion.id}}" />
+                            <input type="hidden" id="id_usuario_like" name="id_usuario_like" value="{{user.id}}" />
+                            
+
+                        <input type="submit" id="boton_like" value="Me gusta" style="padding: 3px;">
+                    </form>
+                    {% elif publicacion.liked == "si" %}
+                    <form id="like-form" method="post" action="quitar_like" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" id="id_publicacion" name="id_publicacion" value="{{publicacion.id}}" />
+                        <input type="hidden" id="id_usuario_like" name="id_usuario_like" value="{{user.id}}" />
+                        
+                    <input type="submit" id="boton_like" value="No me gusta" style="padding: 3px;">
+                </form>
+                    {% endif %}
+                    
+                    <button onclick="window.location.href = 'posts/{{publicacion.id}}';" style="padding: 3px;">Comentar</button>
+                    </div>
+                    <div class="info">Fecha de Creación: {{publicacion.date_created}}</div>
+                </div>
+            </div>
+            
+            {% endfor %}
+            
+        
+            
+        </div>
+        {% else %}
+        <div class="bienvenida" style="background-color: #2a8f58;
+        color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        width: 70%;
+        margin: auto; 
+        margin-top: 10%; 
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+            <h1 style="margin: 0;
+            font-size: 32px;">Bienvenido a mi red social con Django!</h1>
+            <p style="font-size: 16px;
+            margin-top: 10px;"><a href="login" style="text-decoration: none; color: white;font-weight: bolder;">Inicia sesión</a> o <a href="signin" style="text-decoration: none;color: white;font-weight: bolder;">Regístrate</a> para acceder a todo el contenido.</p>
+        </div>
+        {% endif %}
+    </main>
+
+    <footer>
+        © 2024 Red Social. Todos los derechos reservados.
+    </footer>
+</body>
+</html>

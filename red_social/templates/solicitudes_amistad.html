@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuario</title>
+    <link rel="stylesheet" href="{% static 'style_perfil.css' %}">
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="user-info" style="margin-right: 30px; display: flex; align-items: center;">
+            <img src="{% static 'fotos/foto_perfil_predet.jpg' %}" style="border-radius: 50%; margin-right: 5px; width: 30px; height: 30px;">
+            <a href="{% url 'perfil' user.username %}">{{user.username}}</a>
+            <div class="logout" style="margin-left: 10px;"><a href='../logout' style="font-size: 80%;">Cerrar Sesión</a></div>
+        </div>
+    </header>
+{% else %}
+    <header>
+        <h1><a href="../" style="color:white">Red Social</a></h1>
+        
+        <div class="buttons">
+            <a href="signin"><button>Registrarse</button></a>
+            <a href="login"><button>Iniciar Sesión</button></a>
+        </div>
+    </header>
+{% endif %}
+
+    <main>
+        <div id="sidebar">
+            <div id="search">
+                <!-- Área de búsqueda -->
+                <form method="get" action="../buscar">
+                    <input type="text" name="busqueda" value="{{busqueda}}" placeholder="Buscar..." style="width: 90%; padding: 5px;margin-bottom:5px"><br>
+                    
+                    <!-- Select con opciones -->
+                    {% if categoria == "usuario" %}
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="usuario">Usuario</option>
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                        <option value="publicaciones">Publicaciones</option>
+                    </select>
+                    {% elif categoria == "nombre_apellido" %}
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                        <option value="usuario">Usuario</option>
+                        <option value="publicaciones">Publicaciones</option>
+                    </select>
+                    {% elif categoria == "publicaciones" %}
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="publicaciones">Publicaciones</option>
+                        <option value="usuario">Usuario</option>
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                    </select>
+                    {% else %}
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="usuario">Usuario</option>
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                        <option value="publicaciones">Publicaciones</option>
+                    </select>
+                    {% endif %}
+            
+                    <!-- Botón de búsqueda -->
+                    <input type="submit" value="Buscar">
+                </form>
+            </div>
+
+            <!-- Enlaces de la barra lateral -->
+            <a href="/">Inicio</a>
+            <a href="{% url 'perfil' user.username %}">Perfil</a>
+            <a href="../amigos">Amigos ({{amigos_totales}})</a>
+            <a href="../solicitudes_amistad">Solicitudes de amistad ({{solicitudes_recibidas}})</a>
+            <a href="../mensajes">Chat</a>
+            
+        </div>
+        
+
+        <div id="profile">
+            <div id="profile-tabs">
+                <button class="tab" id="tab-recibidas" onclick="window.location.href='../solicitudes_amistad/'">Recibidas</button>
+                <button class="tab" id="tab-enviadas" onclick="window.location.href='../solicitudes_amistad/?q=enviadas'">Enviadas</button>
+            </div>
+
+           
+           {% if enviadas_recibidas == "recibidas" %}
+           
+           {% if solicitudes_recibidas == 0 %}
+
+           <div class="post" style="width:30%">
+            
+                <p style="text-align: center;">No hay solicitudes de amistad nuevas.</p>
+                
+            </div>
+        </div>
+
+           {% else %}
+           {% for item in solicitudes_amistad_recibidas %}
+
+           <div class="post" style="width:30%">
+            <a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;">
+                <img class="profile-pic" src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil Usuario 1">
+            </a>
+            <div class="post-content">
+                <h3><a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;">{{item.nombre}} {{item.apellido}}</a></h3>
+                <p><a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;color:black">@{{item.usuario}}</a></p>
+                
+                <!-- Botones de solicitud de amistad -->
+                <div class="user-actions">
+                    <form method="post" action="../aceptar_solicitud_amistad2">
+                        {% csrf_token %}
+                        <input type="hidden" name="usuario_perfil" value="{{item.usuario}}" />
+                        <input type="submit" value="Aceptar solicitud">
+                    </form>
+                    <form method="post" action="../eliminar_solicitud_amistad2">
+                        {% csrf_token %}
+                        <input type="hidden" name="usuario_perfil" value="{{item.usuario}}" />
+                        <input type="submit" value="Rechazar solicitud" style="margin-left:10px">
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+
+            {% endfor %}
+            {% endif %}
+            {% elif enviadas_recibidas == "enviadas" %}
+
+            {% if solicitudes_amistad_enviadas|length == 0 %}
+
+           <div class="post" style="width:30%">
+            
+                <p style="text-align: center;">Usted no envió ninguna solicitud de amistad.</p>
+                
+            </div>
+        </div>
+
+           {% else %}
+           {% for item in solicitudes_amistad_enviadas %}
+
+           <div class="post" style="width:30%">
+            <a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;">
+                <img class="profile-pic" src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil Usuario 1">
+            </a>
+            <div class="post-content">
+                <h3><a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;">{{item.nombre}} {{item.apellido}}</a></h3>
+                <p><a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;color:black">@{{item.usuario}}</a></p>
+                
+                <!-- Botones de solicitud de amistad -->
+                <div class="user-actions">
+                    <form method="post" action="../eliminar_solicitud_amistad3">
+                        {% csrf_token %}
+                        <input type="hidden" name="usuario_perfil" value="{{item.usuario}}" />
+                        <input type="submit" value="Cancelar solicitud">
+                    </form>
+                    
+                    
+                </div>
+            </div>
+        </div>
+
+            {% endfor %}
+           
+           {% endif %}
+           {% endif %}
+
+            
+
+            
+
+            
+
+            <!-- Publicaciones -->
+            
+        
+           
+        </div>
+    </main>
+
+    <footer>
+        © 2024 Red Social. Todos los derechos reservados.
+    </footer>
+</body>
+</html>

@@ -1,0 +1,284 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5;
+}
+
+header {
+    background-color: #4267b2;
+    color: #fff;
+    padding: 10px;
+    text-align: left;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed; /* Hacer el header fijo en la parte superior */
+    top: 0; /* Ajustar a la parte superior */
+    z-index: 1000; /* Z-index alto para que esté encima del resto de los elementos */
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+header .buttons {
+    display: flex;
+    margin-right: 30px;
+}
+
+header button {
+    background-color: #4267b2;
+    color: #fff;
+    padding: 10px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+header button:hover {
+    background-color: #314f7a;
+}
+
+header .user-info {
+    display: flex;
+    align-items: center;
+}
+
+header .user-info img {
+    border-radius: 50%;
+    margin-right: 5px;
+    width: 30px; /* Ajusta el tamaño de la foto de perfil según tus preferencias */
+    height: 30px;
+}
+
+header .user-info .username {
+    color: #fff;
+    margin-right: 10px;
+}
+
+header .user-info .logout a {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+main {
+    display: flex;
+    margin-top: 70px; /* Espacio para evitar que el contenido esté detrás del header fijo */
+}
+
+#sidebar {
+    flex: 1;
+    background-color: #4267b2;
+    color: #fff;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    height: 100%;
+    overflow-y: auto;
+    top: 45px; /* Ajuste para evitar que esté detrás del header fijo */
+}
+
+#sidebar a {
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    padding: 10px 0;
+}
+
+
+
+#feed {
+    flex: 3;
+    padding: 20px;
+    margin-left: 10%; /* Ajusta según sea necesario */
+}
+
+footer {
+    background-color: #4267b2;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+#search {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+#search {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#search input, select, button {
+    margin: 5px;
+    padding: 5px;
+}
+.post {
+    width: 80%;
+    margin: auto;
+    margin-bottom: 20px;
+    padding: 15px;
+    margin: 0 0 20px; /* Ajusta según sea necesario */
+    padding: 15px;
+}
+.post .profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.post-content {
+    flex-grow: 1;
+    white-space: normal; /* Permite que el texto se envuelva en varias líneas */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.post h3 {
+    margin: 0 0 5px 0;
+    font-size: 18px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-info h3 {
+    margin-right: 10px;
+}
+
+.post-date {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.post p {
+    margin: 0 0 15px 0;
+}
+
+.post .info {
+    color: #888;
+    font-size: 14px;
+}
+
+.post .likes {
+    color: #3b5998;
+    margin-right: 10px;
+}
+
+.post .comments {
+    color: #777;
+}
+
+.post-content {
+    position: relative;
+}
+
+.eliminar-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #cc0000; /* Cambia el color según tus preferencias */
+    color: #fff;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.eliminar-btn:hover {
+    background-color: #990000;
+}
+
+#create-post {
+    background-color: #f0f2f5;
+    border: 1px solid #ccd0d5;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+#create-post textarea {
+    resize: none;
+    border: 1px solid #ccd0d5;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+#create-post button {
+    background-color: #4267b2;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#create-post button:hover {
+    background-color: #314f7a;
+}
+
+
+.bienvenida {
+    background-color: #3498db;
+    color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 70%;
+    margin: auto; 
+    margin-top: 10%; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.bienvenida h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.bienvenida p {
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.post-content {
+    position: relative;
+}
+
+.post-content textarea {
+    width: 100%;
+    resize: none;
+    border: 1px solid #ccd0d5;
+    border-radius: 4px;
+    padding: 8px;
+    margin-top: 10px;
+}
+
+.post-content .comentar-btn {
+    background-color: #4267b2;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.post-content .comentar-btn:hover {
+    background-color: #314f7a;
+}
+

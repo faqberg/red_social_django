@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuario</title>
+    <link rel="stylesheet" href="{% static 'style_perfil.css' %}">
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="user-info" style="margin-right: 30px; display: flex; align-items: center;">
+            <img src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil" style="border-radius: 50%; margin-right: 5px; width: 30px; height: 30px;">
+            <a href="{% url 'perfil' user.username %}">{{user.username}}</a>
+            <div class="logout" style="margin-left: 10px;"><a href='../logout' style="font-size: 80%;">Cerrar Sesión</a></div>
+        </div>
+    </header>
+{% else %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="buttons">
+            <a href="signin"><button>Registrarse</button></a>
+            <a href="login"><button>Iniciar Sesión</button></a>
+        </div>
+    </header>
+{% endif %}
+
+    <main>
+        <div id="sidebar">
+            <div id="search">
+                <!-- Área de búsqueda -->
+                <form method="get" action="buscar">
+                    <input type="text" name="busqueda" value="{{busqueda}}" placeholder="Buscar..." style="width: 90%; padding: 5px;margin-bottom:5px"><br>
+                    
+                    <!-- Select con opciones -->
+                    {% if categoria == "usuario" %}
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="usuario">Usuario</option>
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                        <option value="publicaciones">Publicaciones</option>
+                    </select>
+                    {% elif categoria == "nombre_apellido" %}
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                        <option value="usuario">Usuario</option>
+                        <option value="publicaciones">Publicaciones</option>
+                    </select>
+                    {% elif categoria == "publicaciones" %}
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="publicaciones">Publicaciones</option>
+                        <option value="usuario">Usuario</option>
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                    </select>
+                    {% endif %}
+            
+                    <!-- Botón de búsqueda -->
+                    <input type="submit" value="Buscar">
+                </form>
+            </div>
+
+            <!-- Enlaces de la barra lateral -->
+            <a href="/">Inicio</a>
+            <a href="{% url 'perfil' user.username %}">Perfil</a>
+            <a href="amigos">Amigos ({{amigos_totales}})</a>
+            <a href="solicitudes_amistad">Solicitudes de amistad ({{solicitudes_recibidas}})</a>
+            <a href="mensajes">Chat</a>
+            
+        </div>
+
+        <div id="profile">
+
+            {% if data == "No se encontraron resultados." %}
+            <div class="post">
+                
+                <div class="post-content">
+                    
+                    <p>{{data}}</p>
+                    
+                </div>
+            </div>
+            {% else %}
+
+            {% if categoria == "nombre_apellido" %}
+
+            {% for item in data %}
+
+            <div class="post" style="width:30%">
+                <a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;"><img class="profile-pic" src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil Usuario 1"></a>
+                <div class="post-content">
+                    <h3><a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;">{{item.nombre}} {{item.apellido}}</a></h3>
+                    <p><a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;color:black">@{{item.usuario}}</a></p>
+                    
+                </div>
+            </div>
+
+            {% endfor %}
+
+            
+
+            {% elif categoria == "usuario" %}
+
+            {% for item in data %}
+            
+            <div class="post" style="width:30%">
+                <a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;"><img class="profile-pic" src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil Usuario 1"></a>
+                <div class="post-content">
+                    <h3><a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;">{{item.nombre}} {{item.apellido}}</a></h3>
+                    <p><a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;color:black">@{{item.usuario}}</a></p>
+                    
+                </div>
+            </div>
+
+            {% endfor %}
+            {% elif categoria == "publicaciones" %}
+            {% for item in data reversed %}
+            <div class="post" style="width: 40%;">
+                <img class="profile-pic" src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil Usuario 1">
+                <div class="post-content">
+                    <h3><a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;color:black">{{item.nombre}} {{item.apellido}}</a></h3>
+                    <h3 style="font-size: 80%;"><a href="{% url 'perfil' item.usuario %}"style="text-decoration: none;color: blue;">@{{item.usuario}}</a></h3>
+                    <p>{{item.texto}}</p>
+                    <div class="info">
+                        <span class="likes">10 likes</span>
+                        <span class="comments">5 comentarios</span>
+                    </div>
+                    <div class="info">Fecha de Creación: {{item.date_created}}</div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endif %}
+            
+
+            
+
+            <!-- Publicaciones -->
+            
+        
+           
+        </div>
+    </main>
+
+    <footer>
+        © 2024 Red Social. Todos los derechos reservados.
+    </footer>
+</body>
+</html>

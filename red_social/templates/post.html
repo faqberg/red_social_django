@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Social</title>
+    <link rel="stylesheet" href="{% static 'style_index.css' %}">
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="user-info" style="margin-right: 30px; display: flex; align-items: center;">
+            <img src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil" style="border-radius: 50%; margin-right: 5px; width: 30px; height: 30px;">
+            <a href="{% url 'perfil' user.username %}">{{user.username}}</a>
+            <div class="logout" style="margin-left: 10px;"><a href='../logout' style="font-size: 80%;">Cerrar Sesión</a></div>
+        </div>
+    </header>
+{% else %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="buttons">
+            <a href="../signin"><button>Registrarse</button></a>
+            <a href="../login"><button>Iniciar Sesión</button></a>
+        </div>
+    </header>
+{% endif %}
+
+
+
+    
+
+    <main>
+        <div id="sidebar">
+            <div id="search">
+                <!-- Área de búsqueda -->
+                <form method="get" action="../buscar">
+                    <input type="text" name="busqueda" placeholder="Buscar..." style="width: 90%; padding: 5px;margin-bottom:5px"><br>
+                    
+                    <!-- Select con opciones -->
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="usuario">Usuario</option>
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                        <option value="publicaciones">Publicaciones</option>
+                    </select>
+            
+                    <!-- Botón de búsqueda -->
+                    <input type="submit" value="Buscar">
+                </form>
+            </div>
+
+            <!-- Enlaces de la barra lateral -->
+            <a href="../">Inicio</a>
+            <a href="{% url 'perfil' user.username %}">Perfil</a>
+            <a href="../amigos">Amigos ({{amigos_totales}})</a>
+            <a href="../solicitudes_amistad">Solicitudes de amistad ({{solicitudes_recibidas}})</a>
+            <a href="../mensajes">Chat</a>
+            
+        </div>
+
+        <div id="feed">
+            <!-- Publicación estilo Facebook -->
+            <div class="post" style="width:70%;margin: auto;">
+                <img class="profile-pic" src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil Usuario 1">
+                <div class="post-content">
+                    {% if usuario_publicacion == user.username %}
+                    <form method="POST" action="../eliminar_post2">
+                        {% csrf_token %}
+                        <input type="hidden" name="id_post" value="{{id_publicacion}}">
+                        
+                        <input type="submit" value="Eliminar" class="eliminar-btn" style="float: right;">
+                    </form>
+                    {% endif %}
+                    <div class="user-info">
+                        <h3><a href="{% url 'perfil' usuario_publicacion %}"  style="text-decoration: none;color: black;">{{nombre_usuario}} {{apellido_usuario}}</a></h3>
+                    
+                        
+                    </div>
+                    <h3 style="font-size: 80%;margin-bottom: 15px;"><a href="{% url 'perfil' usuario_publicacion %}"style="text-decoration: none;color: blue;">@{{usuario_publicacion}}</a></h3>
+                    <p>{{texto_publicacion}}</p>
+                    <div class="info">
+                        <span class="likes">{{numero_likes}} likes</span>
+                        <span class="comments">{{numero_comentarios}} comentarios</span><br>
+                        {% if liked == "no" %}
+                        <form id="like-form" method="post" action="../dar_like" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" id="id_publicacion" name="id_publicacion" value="{{id_publicacion}}" />
+                            <input type="hidden" id="id_usuario_like" name="id_usuario_like" value="{{user.id}}" />
+                            <input type="hidden" id="usuario_perfil" name="usuario_perfil" value="{{usuario_perfil}}" />
+
+                        <input type="submit" id="boton_like" value="Me gusta" style="margin-top:8px">
+                    </form>
+                    {% elif liked == "si" %}
+                    <form id="like-form" method="post" action="../quitar_like" style="display: inline;margin-top:15px">
+                        {% csrf_token %}
+                        <input type="hidden" id="id_publicacion" name="id_publicacion" value="{{id_publicacion}}" />
+                        <input type="hidden" id="id_usuario_like" name="id_usuario_like" value="{{user.id}}" />
+                        <input type="hidden" id="usuario_perfil" name="usuario_perfil" value="{{usuario_perfil}}" />
+                    <input type="submit" id="boton_like" value="No me gusta" style="margin-top:8px">
+                </form>
+                    {% endif %}
+                    <br><br>
+                        <span class="post-date" style="font-size: 90%;color:grey;margin-bottom: 15px;">Creado: {{fecha_publicacion}}</span>
+                        <div>
+                            <form method="post" action="../comentar">
+                                {% csrf_token %}
+                                <input type="hidden" name="id_publicacion" value="{{id_publicacion}}">
+                                <textarea name="texto_comentario" rows="3" cols="40" placeholder="Escribe tu comentario" style="width: 90%; resize: none; border: 1px solid #ccd0d5; border-radius: 4px; padding: 8px; margin-top: 10px;"></textarea>
+                            <input type="submit" value="Comentar" class="comentar-btn" style="background-color: #4267b2; color: #fff; padding: 10px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">
+                            </form>
+
+                            {% for comentario in comentarios reversed %}
+                            <div class="post" style="width:90%;margin: auto;margin-bottom: 15px;">
+                                <img class="profile-pic" src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil Usuario 1">
+                                <div class="post-content">
+                                    
+                                    {% if comentario.usuario == user.username %}
+                                    <form method="POST" action="../eliminar_comentario">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="id_comentario" value="{{comentario.id}}">
+                                        <input type="hidden" name="id_publicacion" value="{{id_publicacion}}">
+                                        
+                                        <input type="submit" value="Eliminar" class="eliminar-btn" style="float: right;">
+                                    </form>
+                                    {% endif %}
+                                    <h3><a href="{% url 'perfil' comentario.usuario %}" style="text-decoration: none;color:black">{{comentario.nombre}} {{comentario.apellido}}</a></h3>
+                                    <h3 style="font-size: 80%;"><a href="{% url 'perfil' comentario.usuario %}"style="text-decoration: none;color: blue;">@{{comentario.usuario}}</a></h3>
+                                    <p style="color:black">{{comentario.texto}}</p>
+                                    
+                                    <div class="info">Fecha de Creación: {{comentario.fecha_creacion}}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Otras publicaciones si las tienes -->
+        </div>
+    </main>
+
+    <footer>
+        © 2024 Red Social. Todos los derechos reservados.
+    </footer>
+</body>
+</html>
+
+

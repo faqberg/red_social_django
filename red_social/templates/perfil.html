@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuario</title>
+    <link rel="stylesheet" href="{% static 'style_perfil.css' %}">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="user-info" style="margin-right: 30px; display: flex; align-items: center;">
+            <img src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil" style="border-radius: 50%; margin-right: 5px; width: 30px; height: 30px;">
+            <a href="{% url 'perfil' user.username %}">{{user.username}}</a>
+            <div class="logout" style="margin-left: 10px;"><a href='../logout' style="font-size: 80%;">Cerrar Sesión</a></div>
+        </div>
+    </header>
+{% else %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="buttons">
+            <a href="signin"><button>Registrarse</button></a>
+            <a href="login"><button>Iniciar Sesión</button></a>
+        </div>
+    </header>
+{% endif %}
+
+    <main>
+        <div id="sidebar">
+            <div id="search">
+                <!-- Área de búsqueda -->
+                <form method="get" action="../buscar">
+                    <input type="text" name="busqueda" placeholder="Buscar..." style="width: 90%; padding: 5px;margin-bottom:5px"><br>
+                    
+                    <!-- Select con opciones -->
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="usuario">Usuario</option>
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                        <option value="publicaciones">Publicaciones</option>
+                    </select>
+            
+                    <!-- Botón de búsqueda -->
+                    <input type="submit" value="Buscar">
+                </form>
+            </div>
+
+            <!-- Enlaces de la barra lateral -->
+            <a href="../../">Inicio</a>
+            <a href="{% url 'perfil' user.username %}">Perfil</a>
+            <a href="../amigos">Amigos ({{amigos_totales}})</a>
+            <a href="../solicitudes_amistad">Solicitudes de amistad ({{solicitudes_recibidas}})</a>
+            <a href="../mensajes">Chat</a>
+            
+        </div>
+
+        <div id="profile">
+            <!-- Foto y nombre grandes -->
+            <img src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil" class="profile-pic-large" style="width: 150px;height: 150px;">
+            <span style="font-weight: bolder;font-size: 200%;">{{nombre_usuario}} {{apellido_usuario}}</span>
+            <span style="color:black;font-size: 100%;padding-top: 5px;">@{{usuario_perfil}}</span>
+
+            {% if usuario_perfil != user.username %}
+            <div class="user-actions" style="margin-top: 10px;">
+                
+                {% if estado_solicitud == "No" %}
+                <form action="../agregar_amigo" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{usuario_perfil}}" name="usuario_perfil">
+                    <input type="submit" value="Agregar amigo"  class="botones_agregar_mensaje"/>
+                    </form>
+                {% elif estado_solicitud == "Pendiente" %}
+                {% if recibido_enviado == "enviado" %}
+                <form action="../eliminar_solicitud_amistad" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{usuario_perfil}}" name="usuario_perfil">
+                    <input type="submit" value="Cancelar solicitud de amistad"  class="botones_agregar_mensaje"/>
+                    </form>
+                {% elif recibido_enviado == "recibido" %}
+                <form action="../aceptar_solicitud_amistad" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{usuario_perfil}}" name="usuario_perfil">
+                    <input type="submit" value="Aceptar solicitud de amistad"  class="botones_agregar_mensaje"/>
+                    </form>
+                {% endif %}
+                {% elif estado_solicitud == "Aceptado" %}
+                <form action="../eliminar_amigo" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{usuario_perfil}}" name="usuario_perfil">
+                    <input type="submit" value="Eliminar amigo"  class="botones_agregar_mensaje"/>
+                    </form>
+                {% endif %}
+                <form action="../mensajes" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{usuario_perfil}}" name="usuario_perfil">
+                    <input type="submit" value="Enviar mensaje"  class="botones_agregar_mensaje"/>
+                </form>
+                
+                
+            </div>
+            {% endif %}
+
+            <!-- División de Publicaciones, Amigos, Información -->
+            <div id="profile-tabs" style="margin-top: 15px">
+                <a href="{% url 'perfil' usuario_perfil %}" style="text-decoration: none;"><div class="tab">Inicio</div></a>
+                <a href="../perfil/{{usuario_perfil}}/amigos" style="text-decoration: none;"><div class="tab">Amigos</div></a>
+                <a href="../perfil/{{usuario_perfil}}/info" style="text-decoration: none;"><div class="tab">Información</div></a>
+            </div>
+
+            {% if usuario_perfil == user.username %}
+
+            <div id="create-post">
+                
+                <form method="post" action="../createpost2">
+                    {% csrf_token %}
+                <textarea placeholder="Escribe tu publicación aquí..." rows="4" cols="50" name="texto_publicacion"></textarea>
+                <input type="submit" style="margin-top: -7px;" value="Publicar" id="submit-publicacion">
+            </form>
+            </div>
+
+            {% endif %}
+
+            <!-- Publicaciones -->
+            {% if posts|length == 0 %}
+            {% if usuario_perfil == user.username %}
+            <p>¡Publica algo!</p>
+            {% else %}
+            <p>Este usuario aún no tiene publicaciones</p>
+            {% endif %}
+            
+            {% endif %}
+            {% for post in posts reversed %}
+            <div class="post" style="width: 40%;">
+                <img class="profile-pic" src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil Usuario 1">
+                <div class="post-content">
+                    <!-- Botón Eliminar en la esquina superior derecha -->
+                    {% if usuario_perfil == user.username %}
+                    <form method="POST" action="../eliminar_post">
+                        {% csrf_token %}
+                        <input type="hidden" name="id_post" value="{{post.id}}">
+                        <input type="hidden" name="perfil" value="{{usuario_perfil}}">
+                        <input type="submit" value="Eliminar" class="eliminar-btn">
+                    </form>
+                    {% endif %}
+                    
+            
+                    <h3><a href="{% url 'perfil' usuario_perfil %}"  style="text-decoration: none;color: black;">{{nombre_usuario}} {{apellido_usuario}}</a></h3>
+                    <h3 style="font-size: 80%;"><a href="{% url 'perfil' usuario_perfil %}"style="text-decoration: none;color: blue;">@{{usuario_perfil}}</a></h3>
+                    <br><p>{{post.texto}}</p>
+                    <div class="info">
+                        <span class="likes" id="likes"><a href="../posts/{{post.id}}" style="text-decoration: none;color:rgb(40, 127, 156)">{{post.cantidad_likes}} likes</a></span>
+                        <span class="comments"><a href="../posts/{{post.id}}" style="text-decoration: none;color:rgb(40, 127, 156)">{{post.numero_comentarios}} comentarios</a></span>
+                    </div>
+                    <div class="likes_coments" style="padding-top: 3px;padding-bottom: 8px;">
+                        {% if post.liked == "no" %}
+                        <form id="like-form" method="post" action="../dar_like" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" id="id_publicacion" name="id_publicacion" value="{{post.id}}" />
+                            <input type="hidden" id="id_usuario_like" name="id_usuario_like" value="{{user.id}}" />
+                            <input type="hidden" id="usuario_perfil" name="usuario_perfil" value="{{usuario_perfil}}" />
+
+                        <input type="submit" id="boton_like" value="Me gusta" style="padding: 3px;">
+                    </form>
+                    {% elif post.liked == "si" %}
+                    <form id="like-form" method="post" action="../quitar_like" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" id="id_publicacion" name="id_publicacion" value="{{post.id}}" />
+                        <input type="hidden" id="id_usuario_like" name="id_usuario_like" value="{{user.id}}" />
+                        <input type="hidden" id="usuario_perfil" name="usuario_perfil" value="{{usuario_perfil}}" />
+                    <input type="submit" id="boton_like" value="No me gusta" style="padding: 3px;">
+                </form>
+                    {% endif %}
+                    
+                    <button onclick="window.location.href = '../posts/{{post.id}}';" style="padding: 3px;">Comentar</button>
+                    </div>
+                    <div class="info">Fecha de Creación: {{post.date_created}}</div>
+                </div>
+            </div>            
+
+            {% endfor %}
+        
+           
+        </div>
+    </main>
+    <!-- <script type="text/javascript">
+        i=0
+        
+            $(document).on('submit','#like-form',function(e){
+            
+            e.preventDefault();
+
+            
+
+
+    
+            $.ajax({
+                type:'POST',
+                url:'/dar_like',
+                data:{
+                    id_publicacion:$('#id_publicacion').val(),
+                    usuario_publicacion:$('#usuario_publicacion').val(),
+                    csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+                },
+                success: function(data){
+
+                    
+                    
+    
+                }
+            });
+            document.getElementById('boton_like').value='No me gusta'
+            document.getElementById('likes').innerHTML=parseInt('{{cantidad_likes}}')+1+ " likes"
+            document.getElementById("like-form").id="dislike-form"
+
+        
+        
+
+    })
+
+            $(document).on('submit','#dislike-form',function(e){
+                    
+                e.preventDefault();
+
+                
+
+                    
+
+
+            
+                $.ajax({
+                    type:'POST',
+                    url:'/quitar_like',
+                    data:{
+                        id_publicacion:$('#id_publicacion').val(),
+                        usuario_publicacion:$('#usuario_publicacion').val(),
+                        csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+                        },
+                        success: function(data){
+
+                        
+                            
+            
+                        }
+                    });
+                    document.getElementById('boton_like').value='Me gusta'
+                    document.getElementById('likes').innerHTML=parseInt('{{cantidad_likes}}')+ " likes"
+                    document.getElementById("dislike-form").id="like-form"
+
+                
+                
+
+            })
+
+        
+        
+    
+            
+        
+         
+        
+    </script> -->
+
+    <footer>
+        © 2024 Red Social. Todos los derechos reservados.
+    </footer>
+</body>
+</html>

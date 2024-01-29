@@ -1,0 +1,170 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5;
+}
+
+#banner {
+    background-color: #4267b2;
+    color: #fff;
+    padding: 10px;
+    text-align: left;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed; /* Hacer el header fijo en la parte superior */
+    top: 0; /* Ajustar a la parte superior */
+    z-index: 1000; /* Z-index alto para que esté encima del resto de los elementos */
+}
+
+#banner h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+#main-container {
+    display: flex;
+    margin-top: 70px; /* Espacio para evitar que el contenido esté detrás del header fijo */
+}
+
+#sidebar {
+    flex: 1;
+    background-color: #4267b2;
+    color: #fff;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    height: 100%;
+    overflow-y: auto;
+    top: 45px; /* Ajuste para evitar que esté detrás del header fijo */
+}
+
+#sidebar a {
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    padding: 10px 0;
+}
+
+#search {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+#search {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#search input, select, button {
+    margin: 5px;
+    padding: 5px;
+}
+
+#profile {
+    flex: 3;
+    padding: 20px;
+}
+
+.profile-pic-large {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+#profile h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+#profile-tabs {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    background-color: #4267b2;
+    color: #fff;
+    cursor: pointer;
+}
+
+.tab:hover {
+    background-color: #314f7a;
+}
+
+.post {
+    display: flex;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+.post .profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.post-content {
+    flex-grow: 1;
+}
+
+.post h3 {
+    margin: 0 0 5px 0;
+    font-size: 18px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-info h3 {
+    margin-right: 10px;
+}
+
+.post-date {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.post p {
+    margin: 0 0 15px 0;
+}
+
+.post .info {
+    color: #888;
+    font-size: 14px;
+}
+
+.post .likes {
+    color: #3b5998;
+    margin-right: 10px;
+}
+
+.post .comments {
+    color: #777;
+}
+
+footer {
+    background-color: #4267b2;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}

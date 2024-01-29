@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuario</title>
+    <link rel="stylesheet" href="{% static 'style_perfil.css' %}">
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="user-info" style="margin-right: 30px; display: flex; align-items: center;">
+            <img src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil" style="border-radius: 50%; margin-right: 5px; width: 30px; height: 30px;">
+            <a href="{% url 'perfil' user.username %}">{{user.username}}</a>
+            <div class="logout" style="margin-left: 10px;"><a href='../../logout' style="font-size: 80%;">Cerrar Sesión</a></div>
+        </div>
+    </header>
+{% else %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="buttons">
+            <a href="signin"><button>Registrarse</button></a>
+            <a href="login"><button>Iniciar Sesión</button></a>
+        </div>
+    </header>
+{% endif %}
+
+    <main>
+        <div id="sidebar">
+            <div id="search">
+                <!-- Área de búsqueda -->
+                <form method="get" action="../buscar">
+                    <input type="text" name="busqueda" placeholder="Buscar..." style="width: 90%; padding: 5px;margin-bottom:5px"><br>
+                    
+                    <!-- Select con opciones -->
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="usuario">Usuario</option>
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                        <option value="publicaciones">Publicaciones</option>
+                    </select>
+            
+                    <!-- Botón de búsqueda -->
+                    <input type="submit" value="Buscar">
+                </form>
+            </div>
+
+            <!-- Enlaces de la barra lateral -->
+            <a href="../../">Inicio</a>
+            <a href="{% url 'perfil' user.username %}">Perfil</a>
+            <a href="../../amigos">Amigos ({{amigos_totales}})</a>
+            <a href="../../solicitudes_amistad">Solicitudes de amistad ({{solicitudes_recibidas}})</a>
+            <a href="../../mensajes">Chat</a>
+            
+        </div>
+
+        <div id="profile">
+            <!-- Foto y nombre grandes -->
+            <img src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil" class="profile-pic-large" style="width: 150px;height: 150px;">
+            <span style="font-weight: bolder;font-size: 200%;">{{nombre_usuario}} {{apellido_usuario}}</span>
+            <span style="color:black;font-size: 100%;padding-top: 5px;">@{{usuario_perfil}}</span>
+
+            {% if usuario_perfil != user.username %}
+            <div class="user-actions" style="margin-top: 10px;">
+                
+                {% if estado_solicitud == "No" %}
+                <form action="../agregar_amigo" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{usuario_perfil}}" name="usuario_perfil">
+                    <input type="submit" value="Agregar amigo"  class="botones_agregar_mensaje"/>
+                    </form>
+                {% elif estado_solicitud == "Pendiente" %}
+                {% if recibido_enviado == "enviado" %}
+                <form action="../eliminar_solicitud_amistad" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{usuario_perfil}}" name="usuario_perfil">
+                    <input type="submit" value="Cancelar solicitud de amistad"  class="botones_agregar_mensaje"/>
+                    </form>
+                {% elif recibido_enviado == "recibido" %}
+                <form action="../aceptar_solicitud_amistad" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{usuario_perfil}}" name="usuario_perfil">
+                    <input type="submit" value="Aceptar solicitud de amistad"  class="botones_agregar_mensaje"/>
+                    </form>
+                {% endif %}
+                {% elif estado_solicitud == "Aceptado" %}
+                <form action="../eliminar_amigo" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{usuario_perfil}}" name="usuario_perfil">
+                    <input type="submit" value="Eliminar amigo"  class="botones_agregar_mensaje"/>
+                    </form>
+                {% endif %}
+                <form action="../mensajes" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{usuario_perfil}}" name="usuario_perfil">
+                    <input type="submit" value="Enviar mensaje"  class="botones_agregar_mensaje"/>
+                </form>
+                
+                
+            </div>
+            {% endif %}
+
+            <!-- División de Publicaciones, Amigos, Información -->
+            <div id="profile-tabs" style="margin-top: 15px">
+                <a href="../{{usuario_perfil}}" style="text-decoration: none;"><div class="tab">Inicio</div></a>
+                <a href="../{{usuario_perfil}}/amigos" style="text-decoration: none;"><div class="tab">Amigos</div></a>
+                <a href="../{{usuario_perfil}}/info" style="text-decoration: none;"><div class="tab">Información</div></a>
+            </div>
+
+            {% if usuario_perfil == user.username %}
+
+            <div id="create-post">
+                
+                <form method="post" action="../createpost2">
+                    {% csrf_token %}
+                <textarea placeholder="Escribe tu publicación aquí..." rows="4" cols="50" name="texto_publicacion"></textarea>
+                <input type="submit" style="margin-top: -7px;" value="Publicar" id="submit-publicacion">
+            </form>
+            </div>
+
+            {% endif %}
+
+            <!-- Publicaciones -->
+
+            {% if seccion == "amigos" %}
+
+            {% if lista_amigos|length == 0 %}
+
+            <div class="post" style="width:30%">
+                
+                <div class="post-content">
+                    
+                    <p>Usted no tiene amigos agregados.</p>
+                    
+                </div>
+            </div>
+
+            {% else %}
+
+            {% for item in lista_amigos %}
+
+            <div class="post" style="width:30%">
+                <a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;"><img class="profile-pic" src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil Usuario 1"></a>
+                <div class="post-content">
+                    <h3><a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;">{{item.nombre}} {{item.apellido}}</a></h3>
+                    <p><a href="{% url 'perfil' item.usuario %}" style="text-decoration: none;color:black">@{{item.usuario}}</a></p>
+                    
+                </div>
+            </div>
+
+            {% endfor %}
+
+            {% endif %}
+
+            {% elif seccion == "info" %}
+
+            <div style="background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 30px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; width: 30%;margin-bottom: 60px;margin-top: 20px;">
+                <div style="display: flex; flex-direction: column;">
+                    <span style="margin-bottom: 10px;padding-bottom: 7px;;padding-top: 15px;">Usuario: {{usuario_perfil}}</span>
+                    <span style="margin-bottom: 10px;padding-bottom: 7px">Nombre: {{nombre_usuario}}</span>
+                    <span style="margin-bottom: 10px;padding-bottom: 7px;">Apellido: {{apellido_usuario}}</span>
+                    {% if usuario_perfil == user.username %}
+                    <span style="margin-bottom: 10px;padding-bottom: 7px;">Email: {{email_usuario}}</span>
+                    {% endif %}
+                    <span style="margin-bottom: 10px;padding-bottom: 7px;">Fecha de Nacimiento: {{fecha_nacimiento_usuario}}</span>
+                    <span style="margin-bottom: 10px;padding-bottom: 7px;">Sexo: {{genero_usuario}}</span>
+                    <span style="margin-bottom: 10px;padding-bottom: 7px;">Nacionalidad: {{nacionalidad_usuario}}</span>
+                </div>
+            {% if usuario_perfil == user.username %}
+                <button type="button" onclick="window.location.href='../../editar_datos'">Editar</button>
+            {% endif %}
+            </div>
+
+            {% endif %}
+            
+        
+           
+        </div>
+    </main>
+
+    <footer>
+        © 2024 Red Social. Todos los derechos reservados.
+    </footer>
+</body>
+</html>

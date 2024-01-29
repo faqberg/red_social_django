@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuario</title>
+    <link rel="stylesheet" href="{% static 'style_perfil.css' %}">
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="user-info" style="margin-right: 30px; display: flex; align-items: center;">
+            <img src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil" style="border-radius: 50%; margin-right: 5px; width: 30px; height: 30px;">
+            <a href="{% url 'perfil' user.username %}">{{user.username}}</a>
+            <div class="logout" style="margin-left: 10px;"><a href='../logout' style="font-size: 80%;">Cerrar Sesión</a></div>
+        </div>
+    </header>
+{% else %}
+    <header>
+        <h1><a href="/" style="color:white">Red Social</a></h1>
+        
+        <div class="buttons">
+            <a href="signin"><button>Registrarse</button></a>
+            <a href="login"><button>Iniciar Sesión</button></a>
+        </div>
+    </header>
+{% endif %}
+
+    <main>
+        <div id="sidebar">
+            <div id="search">
+                <!-- Área de búsqueda -->
+                <form method="get" action="buscar">
+                    <input type="text" name="busqueda" value="{{busqueda}}" placeholder="Buscar..." style="width: 90%; padding: 5px;margin-bottom:5px"><br>
+                    
+                    <!-- Select con opciones -->
+                    {% if categoria == "usuario" %}
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="usuario">Usuario</option>
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                        <option value="publicaciones">Publicaciones</option>
+                    </select>
+                    {% elif categoria == "nombre_apellido" %}
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                        <option value="usuario">Usuario</option>
+                        <option value="publicaciones">Publicaciones</option>
+                    </select>
+                    {% elif categoria == "publicaciones" %}
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="publicaciones">Publicaciones</option>
+                        <option value="usuario">Usuario</option>
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                    </select>
+                    {% else %}
+                    <select style="margin-right: 0px;" name="cat">
+                        <option value="usuario">Usuario</option>
+                        <option value="nombre_apellido">Nombre y/o apellido</option>
+                        <option value="publicaciones">Publicaciones</option>
+                    </select>
+                    {% endif %}
+            
+                    <!-- Botón de búsqueda -->
+                    <input type="submit" value="Buscar">
+                </form>
+            </div>
+
+            <!-- Enlaces de la barra lateral -->
+            <a href="/">Inicio</a>
+            <a href="{% url 'perfil' user.username %}">Perfil</a>
+            <a href="amigos">Amigos ({{amigos_totales}})</a>
+            <a href="solicitudes_amistad">Solicitudes de amistad ({{solicitudes_recibidas}})</a>
+            <a href="mensajes">Chat</a>
+            
+        </div>
+
+        <div id="profile">
+
+            {% if conversaciones_datos == "Usted no inició ninguna conversación." %}
+
+            <div class="post" style="width:30%;text-align: center;">
+             
+                 <p style="text-align: center;">{{conversaciones_datos}}</p>
+                 
+             </div>
+         </div>
+ 
+            {% else %}
+            {% for conversacion in conversaciones_datos %}
+ 
+            
+            <div class="post" style="width:30%;cursor: pointer;" onclick="window.location.href='chat/{{conversacion.usuario}} '">
+                 <a href="../perfil/{{conversacion.usuario}}" style="text-decoration: none;"><img class="profile-pic" src="{% static 'fotos/foto_perfil_predet.jpg' %}" alt="Foto de perfil Usuario 1"></a>
+                 <div class="post-content">
+                     <h3><a href="../perfil/{{conversacion.usuario}}" style="text-decoration: none;">{{conversacion.nombre_apellido}}</a></h3>
+                     <p><a href="../perfil/{{conversacion.usuario}}" style="text-decoration: none;color:black">@{{conversacion.usuario}}</a></p>
+                     {% if conversacion.ultimo_mensaje_leido == "no" and conversacion.usuario_ultimo_mensaje != user.username %}
+                     <p><a href="mensajes/{{conversacion.usuario}}" style="text-decoration: none;color:black;font-weight: bolder;">{{conversacion.ultimo_mensaje}}</a></p>
+                     {% else %}
+                     <p><a href="mensajes/{{conversacion.usuario}}" style="text-decoration: none;color:black">{{conversacion.ultimo_mensaje}}</a></p>
+                     {% endif %}
+                     <p><a href="mensajes/{{conversacion.usuario}}" style="text-decoration: none;color:black">{{conversacion.fecha_ultimo_mensaje}}</a></p>                     
+                     
+                 </div>
+             </div>
+            
+ 
+             {% endfor %}
+            {% endif %}
+
+            
+
+            
+
+            
+
+            <!-- Publicaciones -->
+            
+        
+           
+        </div>
+    </main>
+
+    <footer>
+        © 2024 Red Social. Todos los derechos reservados.
+    </footer>
+
+    
+</body>
+</html>
